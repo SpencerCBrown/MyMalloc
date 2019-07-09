@@ -15,6 +15,8 @@ void* MyMalloc(size_t size);
 size_t Round(size_t size);
 uint8_t LogSize(size_t size);
 Header* CreateHeader(void* block, uint8_t size);
+void MyFree(void* pointer);
+void Coalesce(Header* header);
 
 FreeList flists[9];
 
@@ -63,22 +65,59 @@ Header* GetBlock(int level)
     return block;
 }
 
+/* Create a struct at the start of the block */
 Header* CreateHeader(void* block, uint8_t size)
 {
     Header* header = (Header*) block;
     header->size = size;
     header->link = nullptr;
+    header->free = true;
     return (Header*) header;
 }
 
 void* MyMalloc(size_t size)
 {
-    size = Round(size); // nearest viable size
+    size = Round(size + 16); // nearest viable size
+
+    // temporary
+    if (size > 4096)
+        return (void*) -1;
+
     uint8_t level = LogSize(size);
     Header* block = GetBlock(level); // pointer to header preceding actual memory block
+    block->free = false;
     if (block == nullptr)
         return (void*) -1;
-    return block + sizeof(Header); // return address pointing to first byte past header
+    
+    byte* headeraddr = (byte*) block;
+    void* blockaddr = (headeraddr + sizeof(Header));
+    return (void*)blockaddr; // return address pointing to first byte past header
+}
+
+void MyFree(void* pointer)
+{
+    // get header prepending memory at pointer
+    byte* address = (byte*) pointer;
+    Header* header = (Header*) (address - sizeof(Header));
+
+    // try to merge with buddy and/or return to free list
+    Coalesce(header);
+}
+
+void Coalesce(Header* header)
+{
+    /* If a buddy block of the same size as the current block exists and is free, merge the two blocks */
+    FreeList &list = flists[header->size];
+    Header* buddy = (Header*) (( (uint64_t) header ) ^ (1 << header->size) );
+    if (buddy->size == header->size && buddy->free) {
+        Header* firstHeader = (header > buddy) ? header : buddy;
+        Header* coalescedBlock = CreateHeader(firstHeader, ++(header->size));
+        /* Make recursive call to try to coalesce the newly created block with _IT's_ buddy */
+        Coalesce(coalescedBlock);
+    } else {
+        header->free = true;
+        list.append(header);
+    }
 }
 
 uint8_t LogSize(size_t size)
@@ -102,9 +141,10 @@ size_t Round(size_t size)
 
 int main()
 {
-    Header* h1 = GetBlock(11);
-    Header* h2 = GetBlock(11);
-    printf("Address of h1: %x\n", h1);
-    printf("Address of h2: %x\n", h2);
-    printf("Offset (bytes): %d\n", h1 - h2);
+    byte* data = (byte*) MyMalloc(1);
+    byte* data2 = (byte*) MyMalloc(1);
+    MyFree(data);
+    MyFree(data2);
+    byte* data3 = (byte*) MyMalloc(2);
+
 }
