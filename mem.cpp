@@ -168,30 +168,30 @@ size_t Round(size_t size)
     return pow(2, lg);
 }
 
-#include <array>
+// #include <array>
 
-int main()
-{
-    // byte* data3 = (byte*) MyMalloc(3000);
-    // MyFree(data3);
-    // byte* data = (byte*) MyMalloc(3000);
-    // byte* data2 = (byte*) MyMalloc(1);
-    // MyFree(data);
-    // MyFree(data2);
-    // printf("%x\n", data);
-    // printf("%x\n", data2);
-    // printf("%x\n", data3);
+// int main()
+// {
+//     // byte* data3 = (byte*) MyMalloc(3000);
+//     // MyFree(data3);
+//     // byte* data = (byte*) MyMalloc(3000);
+//     // byte* data2 = (byte*) MyMalloc(1);
+//     // MyFree(data);
+//     // MyFree(data2);
+//     // printf("%x\n", data);
+//     // printf("%x\n", data2);
+//     // printf("%x\n", data3);
 
 
-    // int* nums = new int[5];
-    // printf("%x\n", nums);
-    // delete[] nums;
-    // int* nums2 = new int[5];
-    // printf("%x\n", nums2);
+//     // int* nums = new int[5];
+//     // printf("%x\n", nums);
+//     // delete[] nums;
+//     // int* nums2 = new int[5];
+//     // printf("%x\n", nums2);
 
-    // std::vector<std::string> *vec = new std::vector<std::string>();
-    // printf("%d\n", sizeof(*vec));
-    std::array<int, 100> *a = new std::array<int, 100>();
-    printf("%d\n", sizeof(*a));
+//     // std::vector<std::string> *vec = new std::vector<std::string>();
+//     // printf("%d\n", sizeof(*vec));
+//     std::array<int, 100> *a = new std::array<int, 100>();
+//     printf("%d\n", sizeof(*a));
 
-}
+// }
