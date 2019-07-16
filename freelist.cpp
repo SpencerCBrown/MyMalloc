@@ -19,3 +19,17 @@ Header* FreeList::popHead()
     }
     return hd;
 }
+
+void FreeList::remove(Header* node)
+{
+    Header* h = head;
+    if (h == node)
+        head = nullptr;
+    while (h) {
+        if (h->link == node) {
+            h->link = h->link->link;
+            break;
+        }
+        h = h->link;
+    }
+}

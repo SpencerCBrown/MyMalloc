@@ -15,6 +15,7 @@ public:
     void append(Header*);
     Header* popHead();
     Header* peekHead() const {return head;}
+    void remove(Header*);
 private:
     Header* head;
 };

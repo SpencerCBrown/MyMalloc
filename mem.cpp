@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cmath>
 #include <iostream>
+#include <vector>
 
 #include <sys/mman.h>
 
@@ -19,6 +20,21 @@ void MyFree(void* pointer);
 void Coalesce(Header* header);
 
 FreeList flists[9];
+
+void * operator new(size_t size)
+{
+    std::cout << "New operator overloading " << std::endl; 
+    void * p = MyMalloc(size); 
+    if (p == (void*) -1)
+        return nullptr;
+    return p; 
+} 
+  
+void operator delete(void * p) 
+{ 
+    std::cout << "Delete operator overloading " << std::endl; 
+    MyFree(p);
+} 
 
 void* GetPage()
 {
@@ -107,11 +123,24 @@ void MyFree(void* pointer)
 void Coalesce(Header* header)
 {
     /* If a buddy block of the same size as the current block exists and is free, merge the two blocks */
-    FreeList &list = flists[header->size];
+    FreeList &list = flists[header->size - 4];
+
+    /* If 4096B size block, there is no buddy */
+    if (header->size == 12) {
+        list.append(header);
+        return;
+    }
+
     Header* buddy = (Header*) (( (uint64_t) header ) ^ (1 << header->size) );
     if (buddy->size == header->size && buddy->free) {
-        Header* firstHeader = (header > buddy) ? header : buddy;
+
+        /* remove buddy from free list */
+        list.remove(buddy);
+
+        /* Create new header for newly coalesced block */
+        Header* firstHeader = (header < buddy) ? header : buddy;
         Header* coalescedBlock = CreateHeader(firstHeader, ++(header->size));
+
         /* Make recursive call to try to coalesce the newly created block with _IT's_ buddy */
         Coalesce(coalescedBlock);
     } else {
@@ -139,12 +168,30 @@ size_t Round(size_t size)
     return pow(2, lg);
 }
 
+#include <array>
+
 int main()
 {
-    byte* data = (byte*) MyMalloc(1);
-    byte* data2 = (byte*) MyMalloc(1);
-    MyFree(data);
-    MyFree(data2);
-    byte* data3 = (byte*) MyMalloc(2);
+    // byte* data3 = (byte*) MyMalloc(3000);
+    // MyFree(data3);
+    // byte* data = (byte*) MyMalloc(3000);
+    // byte* data2 = (byte*) MyMalloc(1);
+    // MyFree(data);
+    // MyFree(data2);
+    // printf("%x\n", data);
+    // printf("%x\n", data2);
+    // printf("%x\n", data3);
+
+
+    // int* nums = new int[5];
+    // printf("%x\n", nums);
+    // delete[] nums;
+    // int* nums2 = new int[5];
+    // printf("%x\n", nums2);
+
+    // std::vector<std::string> *vec = new std::vector<std::string>();
+    // printf("%d\n", sizeof(*vec));
+    std::array<int, 100> *a = new std::array<int, 100>();
+    printf("%d\n", sizeof(*a));
 
 }
