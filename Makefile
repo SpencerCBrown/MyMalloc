@@ -1,5 +1,5 @@
 CC = g++
-OUT_FILE_NAME = libNAME.a
+OUT_FILE_NAME = libMyMalloc.a
 
 CFLAGS= -fPIC -O0 -g -Wall -c -fpermissive
 

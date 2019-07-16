@@ -8,11 +8,12 @@
 
 #include "freelist.h"
 
+#include "mem.h"
+
 typedef char byte;
 
 void* GetPage();
 Header* GetBlock(int level);
-void* MyMalloc(size_t size);
 size_t Round(size_t size);
 uint8_t LogSize(size_t size);
 Header* CreateHeader(void* block, uint8_t size);
